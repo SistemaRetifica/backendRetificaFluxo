@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:15 # Usamos uma versão específica para garantir consistência
+    container_name: fluxo-db
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: 123456 # <-- TROQUE POR UMA SENHA FORTE
+      POSTGRES_DB: fluxo_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - fluxo-pgdata:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  fluxo-pgdata:
