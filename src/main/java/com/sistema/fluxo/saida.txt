@@ -1,0 +1,592 @@
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\.\FluxoApplication.java 
+Conteudo: 
+package com.sistema.fluxo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class FluxoApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(FluxoApplication.class, args);
+	}
+
+}
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\.\saida.txt 
+Conteudo: 
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\.\FluxoApplication.java 
+Conteudo: 
+package com.sistema.fluxo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class FluxoApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(FluxoApplication.class, args);
+	}
+
+}
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\.\saida.txt 
+Conteudo: 
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\.\FluxoApplication.java 
+Conteudo: 
+package com.sistema.fluxo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoco 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\.\visualizar.bat 
+Conteudo: 
+@echo off
+tree /F
+echo. >> saida.txt
+setlocal
+enabledelayedexpansion
+for /r . %%d in (.) do (
+   echo. >> saida.txt
+   echo Diretorio: %%d >> saida.txt
+   for %%f in (%%d\*) do (
+	   echo Arquivo: %%f >> saida.txt
+	   echo Conteudo: >> saida.txt
+	   type %%f >> saida.txt 
+	   echo. >> saida.txt
+   )
+)
+endlocal
+type saida.txt
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\config\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\config\.\SecurityConfig.java 
+Conteudo: 
+package com.sistema.fluxo.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                // libera Swagger/OpenAPI
+                .requestMatchers(
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
+                ).permitAll()
+                // ajuste conforme sua necessidade
+                .anyRequest().permitAll() // ou .authenticated()
+            );
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+        // alternativa: PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+}
+
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\controller\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\controller\.\UserController.java 
+Conteudo: 
+package com.sistema.fluxo.controller;
+
+import com.sistema.fluxo.dto.UserUpdateDTO;
+import com.sistema.fluxo.exceptions.ResourceConflictException;
+import com.sistema.fluxo.model.User;
+import com.sistema.fluxo.service.UserService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.lang.NonNull;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<User> registerUser(@NonNull @RequestBody User user) {
+        User savedUser = userService.saveUser(user);
+        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.findAllUsers();
+        return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable @NonNull Long id) {
+        User user = userService.findUserById(id)
+                               .orElseThrow(() -> new ResourceConflictException("Usuário com ID " + id + " não encontrado."));
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable @NonNull Long id, @Valid @RequestBody @NonNull UserUpdateDTO userUpdateDTO) {
+        User user = userService.updateUser(id, userUpdateDTO);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable @NonNull Long id) {
+        userService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+}
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\dto\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\dto\.\UserUpdateDTO.java 
+Conteudo: 
+package com.sistema.fluxo.dto;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+// import java.util.Set; // Não necessário se não for usar roles aqui
+
+/**
+ * DTO para receber dados de atualização de um usuário.
+ * Contém apenas os campos que podem ser modificados via API.
+ */
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor // Construtor sem argumentos
+@AllArgsConstructor // Construtor com todos os argumentos
+public class UserUpdateDTO {
+
+    @Size(min = 3, max = 50, message = "O nome de usuário deve ter entre 3 e 50 caracteres.")
+    private String username;
+
+    @Email(message = "Por favor, forneça um endereço de e-mail válido.")
+    @Size(max = 100, message = "O e-mail não pode exceder 100 caracteres.")
+    private String email;
+
+    @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres.")
+    private String password; // A senha pode ser opcionalmente atualizada
+
+    // Se você tiver roles e quiser permitir a atualização de roles via este DTO:
+    // private Set<String> roles; // Exemplo: um set de nomes de roles
+}
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exceptions\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exceptions\.\ApiBaseException.java 
+Conteudo: 
+package com.sistema.fluxo.exceptions;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
+
+public abstract class ApiBaseException extends RuntimeException {
+
+    // 1. ANOTE O CAMPO: "Este campo, uma vez inicializado, nunca será nulo."
+    @NonNull
+    private final HttpStatus status;
+
+    // 2. ANOTE O PARÂMETRO: "Este construtor exige um status que não seja nulo."
+    public ApiBaseException(@NonNull HttpStatus status, String message) {
+        super(message);
+        this.status = status;
+    }
+
+    // 3. A ANOTAÇÃO NO MÉTODO AGORA FAZ SENTIDO PARA A IDE:
+    // "Este método retorna o campo 'status', que eu sei que não é nulo."
+    @NonNull
+    public HttpStatus getStatus() {
+        return status;
+    }
+}
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exceptions\.\ErrorResponse.java 
+Conteudo: 
+package com.sistema.fluxo.exceptions;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+public class ErrorResponse {
+
+    // 1. Campos para armazenar os dados do erro
+    private int status;
+    private String message;
+    private long timestamp;
+
+}
+
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exceptions\.\GlobalExceptionHandler.java 
+Conteudo: 
+package com.sistema.fluxo.exceptions;
+
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+ // UM ÚNICO HANDLER PARA GOVERNAR TODOS!
+    @ExceptionHandler(ApiBaseException.class)
+    public ResponseEntity<ErrorResponse> handleApiBaseException(ApiBaseException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+            ex.getStatus().value(),
+            ex.getMessage(),
+            System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(errorResponse, ex.getStatus());
+    }
+}
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exceptions\.\ResourceConflictException.java 
+Conteudo: 
+package com.sistema.fluxo.exceptions;
+
+import org.springframework.http.HttpStatus;
+
+// Não precisa mais do @ResponseStatus aqui!
+public class ResourceConflictException extends ApiBaseException {
+
+    public ResourceConflictException(String message) {
+        // Informa para a classe "mãe" qual é o seu status e mensagem
+        super(HttpStatus.CONFLICT, message);
+    }
+}
+
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exceptions\.\ResourceNotFoundException.java 
+Conteudo: 
+package com.sistema.fluxo.exceptions;
+
+import org.springframework.http.HttpStatus;
+
+// Não precisa mais do @ResponseStatus aqui!
+public class ResourceNotFoundException extends ApiBaseException {
+
+    public ResourceNotFoundException(String message) {
+        // Informa para a classe "mãe" qual é o seu status e mensagem
+        super(HttpStatus.NOT_FOUND, message);
+    }
+}
+
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\model\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\model\.\Role.java 
+Conteudo: 
+package com.sistema.fluxo.model; // Ajuste o pacote se necessário
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.io.Serializable;
+
+/**
+ * Entidade que representa um papel (role) ou perfil de acesso no sistema.
+ * Define as permissões que um usuário pode ter.
+ */
+@Entity
+@Table(name = "roles") // Tabela para os papéis de usuário
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = "id") // Gerar equals e hashCode baseado no ID
+@ToString
+public class Role implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 30)
+    private String name; // Ex: ROLE_ADMIN, ROLE_USER
+}
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\model\.\User.java 
+Conteudo: 
+package com.sistema.fluxo.model;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.io.Serializable;
+import java.util.HashSet; // Import para HashSet
+import java.util.Set;     // Import para Set
+
+@Entity
+@Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = "id")
+@ToString
+public class User implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 50)
+    private String username;
+
+    @Column(nullable = false, length = 120) // Tamanho para hash de senhas
+    private String password;
+
+    @Column(nullable = false, unique = true, length = 100)
+    private String email;
+
+    @ManyToMany(fetch = FetchType.EAGER) // Carrega os papéis junto com o usuário
+    @JoinTable(name = "user_roles",
+               joinColumns = @JoinColumn(name = "user_id"),
+               inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
+}
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\repository\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\repository\.\RoleRepository.java 
+Conteudo: 
+package com.sistema.fluxo.repository; // Ajuste o pacote se necessário
+
+import com.sistema.fluxo.model.Role; // Importa a entidade Role
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+/**
+ * Interface de repositório para a entidade Role.
+ * Estende JpaRepository para fornecer métodos CRUD básicos e funcionalidades de paginação.
+ */
+@Repository
+public interface RoleRepository extends JpaRepository<Role, Long> {
+
+    /**
+     * Encontra um papel (role) pelo seu nome.
+     * @param name O nome do papel (ex: ROLE_ADMIN, ROLE_USER) a ser pesquisado.
+     * @return Um Optional contendo o papel, se encontrado.
+     */
+    Optional<Role> findByName(String name);
+}
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\repository\.\UserRepository.java 
+Conteudo: 
+package com.sistema.fluxo.repository; // Ajuste o pacote se necessário
+
+import com.sistema.fluxo.model.User; // Importa a entidade User
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+/**
+ * Interface de repositório para a entidade User.
+ * Estende JpaRepository para fornecer métodos CRUD básicos e funcionalidades de paginação.
+ */
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+
+    /**
+     * Encontra um usuário pelo seu nome de usuário.
+     * @param username O nome de usuário a ser pesquisado.
+     * @return Um Optional contendo o usuário, se encontrado.
+     */
+    Optional<User> findByUsername(String username);
+
+    /**
+     * Verifica se um usuário com o nome de usuário especificado existe.
+     * @param username O nome de usuário a ser verificado.
+     * @return true se um usuário com esse nome de usuário existir, false caso contrário.
+     */
+    Boolean existsByUsername(String username);
+
+    /**
+     * Verifica se um usuário com o e-mail especificado existe.
+     * @param email O e-mail a ser verificado.
+     * @return true se um usuário com esse e-mail existir, false caso contrário.
+     */
+    Boolean existsByEmail(String email);
+}
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\service\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\service\.\UserService.java 
+Conteudo: 
+package com.sistema.fluxo.service;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.springframework.lang.NonNull;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.sistema.fluxo.dto.UserUpdateDTO;
+import com.sistema.fluxo.exceptions.ResourceConflictException;
+import com.sistema.fluxo.exceptions.ResourceNotFoundException;
+import com.sistema.fluxo.model.User;
+import com.sistema.fluxo.repository.UserRepository;
+
+@Service
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public List<User> findAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public Optional<User> findUserById(@NonNull Long id) {
+        return userRepository.findById(id);
+    }
+
+    public Optional<User> findUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    public @NonNull User saveUser(@NonNull User user) {
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new ResourceConflictException("O nome de usuário '" + user.getUsername() + "' já está em uso.");
+        }
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new ResourceConflictException("O e-mail '" + user.getEmail() + "' já está em uso.");
+        }
+
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
+        return userRepository.save(user);
+    }
+
+    public @NonNull User updateUser(@NonNull Long id, @NonNull UserUpdateDTO userUpdateDTO) {
+
+        User existingUser = Objects.requireNonNull(
+            userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário com ID " + id + " não encontrado."))
+        );
+        applyUserUpdates(existingUser, userUpdateDTO);   
+        return userRepository.save(existingUser);
+    }
+
+    private void applyUserUpdates(@NonNull User existingUser, @NonNull UserUpdateDTO userUpdateDTO) {
+        // Atualiza username
+        if (userUpdateDTO.getUsername() != null && !userUpdateDTO.getUsername().isEmpty()) {
+            if (!existingUser.getUsername().equals(userUpdateDTO.getUsername())) {
+                if (userRepository.existsByUsername(userUpdateDTO.getUsername())) {
+                    throw new ResourceConflictException("O nome de usuário '" + userUpdateDTO.getUsername() + "' já está em uso por outro usuário.");
+                }
+                existingUser.setUsername(userUpdateDTO.getUsername());
+            }
+        }
+
+        // Atualiza email
+        if (userUpdateDTO.getEmail() != null && !userUpdateDTO.getEmail().isEmpty()) {
+            if (!existingUser.getEmail().equals(userUpdateDTO.getEmail())) {
+                if (userRepository.existsByEmail(userUpdateDTO.getEmail())) {
+                    throw new ResourceConflictException("O e-mail '" + userUpdateDTO.getEmail() + "' já está em uso por outro usuário.");
+                }
+                existingUser.setEmail(userUpdateDTO.getEmail());
+            }
+        }
+
+        // Atualiza password (se fornecida)
+        if (userUpdateDTO.getPassword() != null && !userUpdateDTO.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(userUpdateDTO.getPassword()));
+        }
+
+    }
+
+
+    public void deleteUser(@NonNull Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new ResourceConflictException("Usuário com ID " + id + " não encontrado para deleção.");
+        }
+        userRepository.deleteById(id);
+    }
+
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+}
+ 
