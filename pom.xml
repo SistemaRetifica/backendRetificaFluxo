@@ -7,7 +7,8 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.1</version> <relativePath/>
+    <version>3.4.11</version>
+    <relativePath/>
   </parent>
 
   <groupId>com.sistema</groupId>
@@ -18,9 +19,7 @@
 
   <properties>
     <java.version>17</java.version>
-    <springdoc.version>2.8.0</springdoc.version>
-    <flyway.version>11.1.0</flyway.version>
-    <lombok.version>1.18.34</lombok.version>
+    <springdoc.version>2.8.15</springdoc.version>
   </properties>
 
   <dependencyManagement>
@@ -32,26 +31,14 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-
-      <dependency>
-        <groupId>org.flywaydb</groupId>
-        <artifactId>flyway-core</artifactId>
-        <version>${flyway.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.flywaydb</groupId>
-        <artifactId>flyway-database-postgresql</artifactId>
-        <version>${flyway.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>${lombok.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
   <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -64,19 +51,14 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-validation</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
 
+    <!-- Springdoc gerenciado pelo BOM -->
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
     </dependency>
 
+    <!-- Flyway (10.x) e PostgreSQL gerenciados pelo Boot -->
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
@@ -85,12 +67,19 @@
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-postgresql</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>runtime</scope>
+    </dependency>
 
+    <!-- Hibernate Envers -->
     <dependency>
       <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-envers</artifactId>
     </dependency>
 
+    <!-- Devtools e Lombok -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-devtools</artifactId>
@@ -103,6 +92,7 @@
       <optional>true</optional>
     </dependency>
 
+    <!-- Testes -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
