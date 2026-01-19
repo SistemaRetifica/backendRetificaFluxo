@@ -1,4 +1,4 @@
-package com.sistema.fluxo.exceptions;
+package com.sistema.fluxo.exception;
 
 import org.springframework.http.HttpStatus;
 

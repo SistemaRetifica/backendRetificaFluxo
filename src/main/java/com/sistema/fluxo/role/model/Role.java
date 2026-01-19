@@ -1,4 +1,4 @@
-package com.sistema.fluxo.model; // Ajuste o pacote se necessário
+package com.sistema.fluxo.role.model; // Ajuste o pacote se necessário
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

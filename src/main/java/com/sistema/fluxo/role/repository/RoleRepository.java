@@ -1,8 +1,9 @@
-package com.sistema.fluxo.repository; // Ajuste o pacote se necessário
+package com.sistema.fluxo.role.repository; // Ajuste o pacote se necessário
 
-import com.sistema.fluxo.model.Role; // Importa a entidade Role
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.sistema.fluxo.role.model.Role;
 
 import java.util.Optional;
 

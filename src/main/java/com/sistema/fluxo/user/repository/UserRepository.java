@@ -1,8 +1,9 @@
-package com.sistema.fluxo.repository; // Ajuste o pacote se necessário
+package com.sistema.fluxo.user.repository;
 
-import com.sistema.fluxo.model.User; // Importa a entidade User
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.sistema.fluxo.user.model.User;
 
 import java.util.Optional;
 

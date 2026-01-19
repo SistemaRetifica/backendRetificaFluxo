@@ -1,4 +1,4 @@
-package com.sistema.fluxo.service;
+package com.sistema.fluxo.user.service;
 
 import java.util.List;
 import java.util.Objects;
@@ -8,11 +8,11 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.sistema.fluxo.dto.UserUpdateDTO;
-import com.sistema.fluxo.exceptions.ResourceConflictException;
-import com.sistema.fluxo.exceptions.ResourceNotFoundException;
-import com.sistema.fluxo.model.User;
-import com.sistema.fluxo.repository.UserRepository;
+import com.sistema.fluxo.exception.ResourceConflictException;
+import com.sistema.fluxo.exception.ResourceNotFoundException;
+import com.sistema.fluxo.user.dto.UserUpdateDTO;
+import com.sistema.fluxo.user.model.User;
+import com.sistema.fluxo.user.repository.UserRepository;
 
 @Service
 public class UserService {

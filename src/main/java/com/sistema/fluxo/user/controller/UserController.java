@@ -1,9 +1,10 @@
-package com.sistema.fluxo.controller;
+package com.sistema.fluxo.user.controller;
 
-import com.sistema.fluxo.dto.UserUpdateDTO;
-import com.sistema.fluxo.exceptions.ResourceConflictException;
-import com.sistema.fluxo.model.User;
-import com.sistema.fluxo.service.UserService;
+import com.sistema.fluxo.exception.ResourceConflictException;
+import com.sistema.fluxo.user.dto.UserUpdateDTO;
+import com.sistema.fluxo.user.model.User;
+import com.sistema.fluxo.user.service.UserService;
+
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

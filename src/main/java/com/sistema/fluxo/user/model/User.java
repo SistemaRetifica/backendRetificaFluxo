@@ -1,4 +1,4 @@
-package com.sistema.fluxo.model;
+package com.sistema.fluxo.user.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,6 +11,8 @@ import lombok.ToString;
 import java.io.Serializable;
 import java.util.HashSet; // Import para HashSet
 import java.util.Set;     // Import para Set
+
+import com.sistema.fluxo.role.model.Role;
 
 @Entity
 @Table(name = "users")

@@ -109,19 +109,294 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
         // alternativa: PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
+
+    
 }
 
  
  
-Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\controller\. 
-Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\controller\.\UserController.java 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\ApiBaseException.java 
 Conteudo: 
-package com.sistema.fluxo.controller;
+package com.sistema.fluxo.exception;
 
-import com.sistema.fluxo.dto.UserUpdateDTO;
-import com.sistema.fluxo.exceptions.ResourceConflictException;
-import com.sistema.fluxo.model.User;
-import com.sistema.fluxo.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
+
+public abstract class ApiBaseException extends RuntimeException {
+
+    // 1. ANOTE O CAMPO: "Este campo, uma vez inicializado, nunca será nulo."
+    @NonNull
+    private final HttpStatus status;
+
+    // 2. ANOTE O PARÂMETRO: "Este construtor exige um status que não seja nulo."
+    public ApiBaseException(@NonNull HttpStatus status, String message) {
+        super(message);
+        this.status = status;
+    }
+
+    // 3. A ANOTAÇÃO NO MÉTODO AGORA FAZ SENTIDO PARA A IDE:
+    // "Este método retorna o campo 'status', que eu sei que não é nulo."
+    @NonNull
+    public HttpStatus getStatus() {
+        return status;
+    }
+}
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\ErrorResponse.java 
+Conteudo: 
+package com.sistema.fluxo.exception;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+public class ErrorResponse {
+
+    // 1. Campos para armazenar os dados do erro
+    private int status;
+    private String message;
+    private long timestamp;
+
+}
+
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\GlobalExceptionHandler.java 
+Conteudo: 
+package com.sistema.fluxo.exception;
+
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+ // UM ÚNICO HANDLER PARA GOVERNAR TODOS!
+    @ExceptionHandler(ApiBaseException.class)
+    public ResponseEntity<ErrorResponse> handleApiBaseException(ApiBaseException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+            ex.getStatus().value(),
+            ex.getMessage(),
+            System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(errorResponse, ex.getStatus());
+    }
+}
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\ResourceConflictException.java 
+Conteudo: 
+package com.sistema.fluxo.exception;
+
+import org.springframework.http.HttpStatus;
+
+// Não precisa mais do @ResponseStatus aqui!
+public class ResourceConflictException extends ApiBaseException {
+
+    public ResourceConflictException(String message) {
+        // Informa para a classe "mãe" qual é o seu status e mensagem
+        super(HttpStatus.CONFLICT, message);
+    }
+}
+
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\ResourceNotFoundException.java 
+Conteudo: 
+package com.sistema.fluxo.exception;
+
+import org.springframework.http.HttpStatus;
+
+// Não precisa mais do @ResponseStatus aqui!
+public class ResourceNotFoundException extends ApiBaseException {
+
+    public ResourceNotFoundException(String message) {
+        // Informa para a classe "mãe" qual é o seu status e mensagem
+        super(HttpStatus.NOT_FOUND, message);
+    }
+}
+
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\role\. 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\role\controller\. 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\role\dto\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\role\dto\.\RoleCreateDto.java 
+Conteudo: 
+package com.sistema.fluxo.role.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+/**
+ * DTO para criação de uma Role.
+ */
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
+public class RoleCreateDto {
+
+    @NotBlank(message = "O nome da role é obrigatório.")
+    @Size(max = 30, message = "O nome da role não pode exceder 30 caracteres.")
+    @Pattern(regexp = "^ROLE_[A-Z0-9_]+$", message = "Use o padrão ROLE_NOME (apenas maiúsculas, números e _). Ex.: ROLE_ADMIN")
+    private String name;
+} 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\role\dto\.\RoleResponseDto.java 
+Conteudo: 
+package com.sistema.fluxo.role.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+/**
+ * DTO de resposta para Role.
+ */
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode(of = "id")
+@NoArgsConstructor
+@AllArgsConstructor
+public class RoleResponseDto {
+
+    private Long id;
+    private String name;
+}
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\role\dto\.\RoleUpdateDto.java 
+Conteudo: 
+package com.sistema.fluxo.role.dto;
+
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+/**
+ * DTO para atualização de uma Role.
+ * Todos os campos são opcionais; validações aplicam-se quando não nulos.
+ */
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
+public class RoleUpdateDto {
+
+    @Size(max = 30, message = "O nome da role não pode exceder 30 caracteres.")
+    @Pattern(regexp = "^ROLE_[A-Z0-9_]+$", message = "Use o padrão ROLE_NOME (apenas maiúsculas, números e _). Ex.: ROLE_USER")
+    private String name;
+}
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\role\model\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\role\model\.\Role.java 
+Conteudo: 
+package com.sistema.fluxo.role.model; // Ajuste o pacote se necessário
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.io.Serializable;
+
+/**
+ * Entidade que representa um papel (role) ou perfil de acesso no sistema.
+ * Define as permissões que um usuário pode ter.
+ */
+@Entity
+@Table(name = "roles") // Tabela para os papéis de usuário
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = "id") // Gerar equals e hashCode baseado no ID
+@ToString
+public class Role implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 30)
+    private String name; // Ex: ROLE_ADMIN, ROLE_USER
+}
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\role\repository\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\role\repository\.\RoleRepository.java 
+Conteudo: 
+package com.sistema.fluxo.role.repository; // Ajuste o pacote se necessário
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.sistema.fluxo.role.model.Role;
+
+import java.util.Optional;
+
+/**
+ * Interface de repositório para a entidade Role.
+ * Estende JpaRepository para fornecer métodos CRUD básicos e funcionalidades de paginação.
+ */
+@Repository
+public interface RoleRepository extends JpaRepository<Role, Long> {
+
+    /**
+     * Encontra um papel (role) pelo seu nome.
+     * @param name O nome do papel (ex: ROLE_ADMIN, ROLE_USER) a ser pesquisado.
+     * @return Um Optional contendo o papel, se encontrado.
+     */
+    Optional<Role> findByName(String name);
+}
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\role\service\. 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\user\. 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\user\controller\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\user\controller\.\UserController.java 
+Conteudo: 
+package com.sistema.fluxo.user.controller;
+
+import com.sistema.fluxo.exception.ResourceConflictException;
+import com.sistema.fluxo.user.dto.UserUpdateDTO;
+import com.sistema.fluxo.user.model.User;
+import com.sistema.fluxo.user.service.UserService;
+
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -173,10 +448,10 @@ public class UserController {
 }
  
  
-Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\dto\. 
-Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\dto\.\UserUpdateDTO.java 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\user\dto\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\user\dto\.\UserUpdateDTO.java 
 Conteudo: 
-package com.sistema.fluxo.dto;
+package com.sistema.fluxo.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
@@ -216,156 +491,10 @@ public class UserUpdateDTO {
 }
  
  
-Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exceptions\. 
-Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exceptions\.\ApiBaseException.java 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\user\model\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\user\model\.\User.java 
 Conteudo: 
-package com.sistema.fluxo.exceptions;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.lang.NonNull;
-
-public abstract class ApiBaseException extends RuntimeException {
-
-    // 1. ANOTE O CAMPO: "Este campo, uma vez inicializado, nunca será nulo."
-    @NonNull
-    private final HttpStatus status;
-
-    // 2. ANOTE O PARÂMETRO: "Este construtor exige um status que não seja nulo."
-    public ApiBaseException(@NonNull HttpStatus status, String message) {
-        super(message);
-        this.status = status;
-    }
-
-    // 3. A ANOTAÇÃO NO MÉTODO AGORA FAZ SENTIDO PARA A IDE:
-    // "Este método retorna o campo 'status', que eu sei que não é nulo."
-    @NonNull
-    public HttpStatus getStatus() {
-        return status;
-    }
-}
- 
-Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exceptions\.\ErrorResponse.java 
-Conteudo: 
-package com.sistema.fluxo.exceptions;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-public class ErrorResponse {
-
-    // 1. Campos para armazenar os dados do erro
-    private int status;
-    private String message;
-    private long timestamp;
-
-}
-
- 
-Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exceptions\.\GlobalExceptionHandler.java 
-Conteudo: 
-package com.sistema.fluxo.exceptions;
-
-import org.springframework.http.ResponseEntity;
-
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-@RestControllerAdvice
-public class GlobalExceptionHandler {
-
- // UM ÚNICO HANDLER PARA GOVERNAR TODOS!
-    @ExceptionHandler(ApiBaseException.class)
-    public ResponseEntity<ErrorResponse> handleApiBaseException(ApiBaseException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(
-            ex.getStatus().value(),
-            ex.getMessage(),
-            System.currentTimeMillis()
-        );
-        return new ResponseEntity<>(errorResponse, ex.getStatus());
-    }
-}
- 
-Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exceptions\.\ResourceConflictException.java 
-Conteudo: 
-package com.sistema.fluxo.exceptions;
-
-import org.springframework.http.HttpStatus;
-
-// Não precisa mais do @ResponseStatus aqui!
-public class ResourceConflictException extends ApiBaseException {
-
-    public ResourceConflictException(String message) {
-        // Informa para a classe "mãe" qual é o seu status e mensagem
-        super(HttpStatus.CONFLICT, message);
-    }
-}
-
- 
-Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exceptions\.\ResourceNotFoundException.java 
-Conteudo: 
-package com.sistema.fluxo.exceptions;
-
-import org.springframework.http.HttpStatus;
-
-// Não precisa mais do @ResponseStatus aqui!
-public class ResourceNotFoundException extends ApiBaseException {
-
-    public ResourceNotFoundException(String message) {
-        // Informa para a classe "mãe" qual é o seu status e mensagem
-        super(HttpStatus.NOT_FOUND, message);
-    }
-}
-
- 
- 
-Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\model\. 
-Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\model\.\Role.java 
-Conteudo: 
-package com.sistema.fluxo.model; // Ajuste o pacote se necessário
-
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-
-import java.io.Serializable;
-
-/**
- * Entidade que representa um papel (role) ou perfil de acesso no sistema.
- * Define as permissões que um usuário pode ter.
- */
-@Entity
-@Table(name = "roles") // Tabela para os papéis de usuário
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(of = "id") // Gerar equals e hashCode baseado no ID
-@ToString
-public class Role implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, unique = true, length = 30)
-    private String name; // Ex: ROLE_ADMIN, ROLE_USER
-}
- 
-Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\model\.\User.java 
-Conteudo: 
-package com.sistema.fluxo.model;
+package com.sistema.fluxo.user.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -378,6 +507,8 @@ import lombok.ToString;
 import java.io.Serializable;
 import java.util.HashSet; // Import para HashSet
 import java.util.Set;     // Import para Set
+
+import com.sistema.fluxo.role.model.Role;
 
 @Entity
 @Table(name = "users")
@@ -412,39 +543,15 @@ public class User implements Serializable {
 }
  
  
-Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\repository\. 
-Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\repository\.\RoleRepository.java 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\user\repository\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\user\repository\.\UserRepository.java 
 Conteudo: 
-package com.sistema.fluxo.repository; // Ajuste o pacote se necessário
+package com.sistema.fluxo.user.repository; // Ajuste o pacote se necessário
 
-import com.sistema.fluxo.model.Role; // Importa a entidade Role
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
-/**
- * Interface de repositório para a entidade Role.
- * Estende JpaRepository para fornecer métodos CRUD básicos e funcionalidades de paginação.
- */
-@Repository
-public interface RoleRepository extends JpaRepository<Role, Long> {
-
-    /**
-     * Encontra um papel (role) pelo seu nome.
-     * @param name O nome do papel (ex: ROLE_ADMIN, ROLE_USER) a ser pesquisado.
-     * @return Um Optional contendo o papel, se encontrado.
-     */
-    Optional<Role> findByName(String name);
-}
- 
-Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\repository\.\UserRepository.java 
-Conteudo: 
-package com.sistema.fluxo.repository; // Ajuste o pacote se necessário
-
-import com.sistema.fluxo.model.User; // Importa a entidade User
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import com.sistema.fluxo.user.model.User;
 
 import java.util.Optional;
 
@@ -478,10 +585,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 }
  
  
-Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\service\. 
-Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\service\.\UserService.java 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\user\service\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\user\service\.\UserService.java 
 Conteudo: 
-package com.sistema.fluxo.service;
+package com.sistema.fluxo.user.service;
 
 import java.util.List;
 import java.util.Objects;
@@ -491,11 +598,11 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.sistema.fluxo.dto.UserUpdateDTO;
-import com.sistema.fluxo.exceptions.ResourceConflictException;
-import com.sistema.fluxo.exceptions.ResourceNotFoundException;
-import com.sistema.fluxo.model.User;
-import com.sistema.fluxo.repository.UserRepository;
+import com.sistema.fluxo.exception.ResourceConflictException;
+import com.sistema.fluxo.exception.ResourceNotFoundException;
+import com.sistema.fluxo.user.dto.UserUpdateDTO;
+import com.sistema.fluxo.user.model.User;
+import com.sistema.fluxo.user.repository.UserRepository;
 
 @Service
 public class UserService {
