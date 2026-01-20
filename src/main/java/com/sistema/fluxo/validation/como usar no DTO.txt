@@ -1,0 +1,66 @@
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ClienteCreateDTO {
+
+    @NotBlank(message = "Nome obrigatório")
+    @Size(min = 3, max = 100, message = "O nome deve ter entre 3 e 100 caracteres")
+    private String nome;
+
+    @NotBlank(message = "E-mail obrigatório")
+    @ValidEmail // ✅ Apenas formato
+    private String email;
+
+    @NotBlank(message = "CPF obrigatório")
+    @ValidCpf // ✅ Apenas formato
+    private String cpf;
+
+    @ValidTelefone // ✅ Apenas formato
+    private String telefone;
+
+    @ValidCep
+    private String cep;
+}
+
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class FornecedorCreateDTO {
+
+    @NotBlank(message = "Razão social obrigatória")
+    private String razaoSocial;
+
+    @NotBlank(message = "E-mail obrigatório")
+    @ValidEmail // ✅ Mesma validação reutilizada
+    private String email;
+
+    @NotBlank(message = "CNPJ obrigatório")
+    @ValidCnpj // ✅ Apenas formato
+    private String cnpj;
+}
+
+
+@Getter
+@Setter
+@ToString(exclude = "password")
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserCreateDTO {
+
+    @NotBlank(message = "Nome de usuário obrigatório")
+    @Size(min = 3, max = 50)
+    private String username;
+
+    @NotBlank(message = "E-mail obrigatório")
+    @ValidEmail // ✅ Mesma validação
+    private String email;
+
+    @NotBlank(message = "Senha obrigatória")
+    @SenhaForte // ✅ Validação de complexidade
+    private String password;
+
+    private Set<String> roleNames;
+}

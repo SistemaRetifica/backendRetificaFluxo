@@ -22,6 +22,6 @@ import lombok.ToString;
 public class RoleUpdateDto {
 
     @Size(max = 30, message = "O nome da role não pode exceder 30 caracteres.")
-    @Pattern(regexp = "^ROLE_[A-Z0-9_]+$", message = "Use o padrão ROLE_NOME (apenas maiúsculas, números e _). Ex.: ROLE_USER")
+    @Pattern(regexp = "^[A-Z0-9_]+$", message = "O nome da role deve conter apenas letras maiúsculas, números e underscore, sem espaços")
     private String name;
 }

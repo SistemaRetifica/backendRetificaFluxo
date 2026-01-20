@@ -12,6 +12,8 @@ import lombok.ToString;
 
 import java.util.Set;
 
+import com.sistema.fluxo.validation.ValidPassword;
+
 @Getter
 @Setter
 @ToString
@@ -25,12 +27,13 @@ public class UserCreateDTO {
     private String username;
 
     @NotBlank(message = "O e-mail é obrigatório.")
-    @Email(message = "Por favor, forneça um endereço de e-mail válido.")
     @Size(max = 100, message = "O e-mail não pode exceder 100 caracteres.")
+
+    @Email(message = "O e-mail deve ser válido.")
     private String email;
 
     @NotBlank(message = "A senha é obrigatória.")
-    @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres.")
+    @ValidPassword
     private String password;
 
     private Set<String> roleNames; // Para associar roles durante criação
