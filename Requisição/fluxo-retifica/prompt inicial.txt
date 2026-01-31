@@ -1,3 +1,97 @@
+O que eu já tenho.
+package com.sistema.fluxo.user.model;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.io.Serializable;
+import java.util.HashSet; // Import para HashSet
+import java.util.Set;     // Import para Set
+
+import com.sistema.fluxo.role.model.Role;
+
+@Entity
+@Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = "id")
+@ToString
+public class User implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 50)
+    private String username;
+
+    @Column(nullable = false, length = 120) // Tamanho para hash de senhas
+    private String password;
+
+    @Column(nullable = false, unique = true, length = 100)
+    private String email;
+
+    @ManyToMany(fetch = FetchType.EAGER) // Carrega os papéis junto com o usuário
+    @JoinTable(name = "user_roles",
+               joinColumns = @JoinColumn(name = "user_id"),
+               inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
+}
+
+package com.sistema.fluxo.role.model; // Ajuste o pacote se necessário
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.io.Serializable;
+
+/**
+ * Entidade que representa um papel (role) ou perfil de acesso no sistema.
+ * Define as permissões que um usuário pode ter.
+ */
+@Entity
+@Table(name = "roles") // Tabela para os papéis de usuário
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = "id") // Gerar equals e hashCode baseado no ID
+@ToString
+public class Role implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 30)
+    private String name; // Ex: ROLE_ADMIN, ROLE_USER
+}
+
+O que eu quero implementar, eu coloquei no arquivo fluxo.xlsx.
+
+quero um passo a passo para implementação dessa estrutura.
+quero que me ajude na criação dessas entidades, da menor para maior( que não possua chave estrangeira para que possua.)
+Uma de cada vez
+Atue como um programador backEnd.
+estou usando java spring boot, API spring boot
+
+essas são as bibliotecas que estou usando
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -103,14 +197,6 @@
       <artifactId>spring-security-test</artifactId>
       <scope>test</scope>
     </dependency>
-
-  <!-- H2 Database para testes, evita usar o PostgreSQL -->
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 
   <build>

@@ -1,0 +1,253 @@
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\ApiBaseException.java 
+Conteudo: 
+package com.sistema.fluxo.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
+
+public abstract class ApiBaseException extends RuntimeException {
+
+    // 1. ANOTE O CAMPO: "Este campo, uma vez inicializado, nunca será nulo."
+    @NonNull
+    private final HttpStatus status;
+
+    // 2. ANOTE O PARÂMETRO: "Este construtor exige um status que não seja nulo."
+    public ApiBaseException(@NonNull HttpStatus status, String message) {
+        super(message);
+        this.status = status;
+    }
+
+    // 3. A ANOTAÇÃO NO MÉTODO AGORA FAZ SENTIDO PARA A IDE:
+    // "Este método retorna o campo 'status', que eu sei que não é nulo."
+    @NonNull
+    public HttpStatus getStatus() {
+        return status;
+    }
+}
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\ErrorResponse.java 
+Conteudo: 
+package com.sistema.fluxo.exception;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+public class ErrorResponse {
+
+    // 1. Campos para armazenar os dados do erro
+    private int status;
+    private String message;
+    private long timestamp;
+
+}
+
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\GlobalExceptionHandler.java 
+Conteudo: 
+package com.sistema.fluxo.exception;
+
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+ // UM ÚNICO HANDLER PARA GOVERNAR TODOS!
+    @ExceptionHandler(ApiBaseException.class)
+    public ResponseEntity<ErrorResponse> handleApiBaseException(ApiBaseException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+            ex.getStatus().value(),
+            ex.getMessage(),
+            System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(errorResponse, ex.getStatus());
+    }
+}
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\ResourceConflictException.java 
+Conteudo: 
+package com.sistema.fluxo.exception;
+
+import org.springframework.http.HttpStatus;
+
+// Não precisa mais do @ResponseStatus aqui!
+public class ResourceConflictException extends ApiBaseException {
+
+    public ResourceConflictException(String message) {
+        // Informa para a classe "mãe" qual é o seu status e mensagem
+        super(HttpStatus.CONFLICT, message);
+    }
+}
+
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\ResourceNotFoundException.java 
+Conteudo: 
+package com.sistema.fluxo.exception;
+
+import org.springframework.http.HttpStatus;
+
+// Não precisa mais do @ResponseStatus aqui!
+public class ResourceNotFoundException extends ApiBaseException {
+
+    public ResourceNotFoundException(String message) {
+        // Informa para a classe "mãe" qual é o seu status e mensagem
+        super(HttpStatus.NOT_FOUND, message);
+    }
+}
+
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\saida.txt 
+Conteudo: 
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\ApiBaseException.java 
+Conteudo: 
+package com.sistema.fluxo.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
+
+public abstract class ApiBaseException extends RuntimeException {
+
+    // 1. ANOTE O CAMPO: "Este campo, uma vez inicializado, nunca será nulo."
+    @NonNull
+    private final HttpStatus status;
+
+    // 2. ANOTE O PARÂMETRO: "Este construtor exige um status que não seja nulo."
+    public ApiBaseException(@NonNull HttpStatus status, String message) {
+        super(message);
+        this.status = status;
+    }
+
+    // 3. A ANOTAÇÃO NO MÉTODO AGORA FAZ SENTIDO PARA A IDE:
+    // "Este método retorna o campo 'status', que eu sei que não é nulo."
+    @NonNull
+    public HttpStatus getStatus() {
+        return status;
+    }
+}
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\ErrorResponse.java 
+Conteudo: 
+package com.sistema.fluxo.exception;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+public class ErrorResponse {
+
+    // 1. Campos para armazenar os dados do erro
+    private int status;
+    private String message;
+    private long timestamp;
+
+}
+
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\GlobalExceptionHandler.java 
+Conteudo: 
+package com.sistema.fluxo.exception;
+
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+ // UM ÚNICO HANDLER PARA GOVERNAR TODOS!
+    @ExceptionHandler(ApiBaseException.class)
+    public ResponseEntity<ErrorResponse> handleApiBaseException(ApiBaseException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+            ex.getStatus().value(),
+            ex.getMessage(),
+            System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(errorResponse, ex.getStatus());
+    }
+}
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\ResourceConflictException.java 
+Conteudo: 
+package com.sistema.fluxo.exception;
+
+import org.springframework.http.HttpStatus;
+
+// Não precisa mais do @ResponseStatus aqui!
+public class ResourceConflictException extends ApiBaseException {
+
+    public ResourceConflictException(String message) {
+        // Informa para a classe "mãe" qual é o seu status e mensagem
+        super(HttpStatus.CONFLICT, message);
+    }
+}
+
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\ResourceNotFoundException.java 
+Conteudo: 
+package com.sistema.fluxo.exception;
+
+import org.springframework.http.HttpStatus;
+
+// Não precisa mais do @ResponseStatus aqui!
+public class ResourceNotFoundException extends ApiBaseException {
+
+    public ResourceNotFoundException(String message) {
+        // Informa para a classe "mãe" qual é o seu status e mensagem
+        super(HttpStatus.NOT_FOUND, message);
+    }
+}
+
+ 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\saida.txt 
+Conteudo: 
+ 
+ 
+Diretorio: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\. 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\ApiBaseException.java 
+Conteudo: 
+package com.sistema.fluxo.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
+
+public abstract class ApiBaseExcept 
+Arquivo: C:\Users\cliente\Documents\java\backendRetificaFluxo\src\main\java\com\sistema\fluxo\exception\.\visualizar.bat 
+Conteudo: 
+@echo off
+tree /F
+echo. >> saida.txt
+setlocal
+enabledelayedexpansion
+for /r . %%d in (.) do (
+   echo. >> saida.txt
+   echo Diretorio: %%d >> saida.txt
+   for %%f in (%%d\*) do (
+	   echo Arquivo: %%f >> saida.txt
+	   echo Conteudo: >> saida.txt
+	   type %%f >> saida.txt 
+	   echo. >> saida.txt
+   )
+)
+endlocal
+type saida.txt
+ 
